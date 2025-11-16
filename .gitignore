@@ -1,0 +1,13 @@
+# Cypress
+cypress/screenshots/
+cypress/videos/
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
