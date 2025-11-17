@@ -15,3 +15,10 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+
+Cypress.on("uncaught:exception", (err) => {
+  if (err.message.includes("gaGa4PageViewEvent")) {
+    return false; // מתעלם מהשגיאה של GOV.IL
+  }
+  return false;
+});

@@ -2,22 +2,21 @@ import { BannerComponent } from "./BannerComponent";
 
 export class PrimeMinisterPage {
 
-    constructor() {
-        this.url = "https://www.gov.il/he/departments/prime_ministers_office/govil-landing-page";
-        this.banner = new BannerComponent();
-    }
-
     visit() {
-        cy.visit(this.url);
-    }
+    cy.visit("https://www.gov.il/he/departments/prime_ministers_office/govil-landing-page");
+
+    // מחכים לבאנר להיטען
+    cy.get("#officeBannerItemsCarousel", { timeout: 15000 }).should("exist");
+}
+
 
     replaceBanner() {
-        cy.get("@bannerHTML").then(html => {
-            this.banner.replaceBanner(html);
-        });
+        const banner = new BannerComponent();
+        banner.injectBanner();
     }
 
     validateBanner() {
-        this.banner.getFirstImage().should("be.visible");
+        const banner = new BannerComponent();
+        banner.validateInjection();
     }
 }

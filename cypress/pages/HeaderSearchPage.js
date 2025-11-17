@@ -1,45 +1,70 @@
-class HeaderSearch {
+class HeaderSearchPage {
 
-    static getSearchButton() {
-        return cy.get("button.search-button_search_button__8vPSS");
+  getSearchButton() {
+    return cy.get("button.search-button_search_button__8vPSS");
+  }
+
+  getSearchInput() {
+    return cy.get("#SearchInput");
+  }
+
+  getSearchPopup() {
+    return cy.get("#SearchForm");
+  }
+
+  getResultsList() {
+    return cy.get("#search_results li");
+  }
+
+  getSearchSubmit() {
+    return cy.get("#SearchForm button[type='submit']").first();
+  }
+
+  openSearchPopup() {
+    this.getSearchButton().click({ force: true });
+    this.getSearchInput().should("be.visible");
+    return this;
+  }
+
+  // ✨ Clear שלא נשבר ע"י SuggestExt
+clearInput() {
+  cy.get("#SearchInput").then(($input) => {
+    const input = $input[0];
+
+    // מנקה ישירות בדום
+    input.value = "";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  // מחכה ל-autocomplete שיחזיר (אם יחזיר)
+  cy.wait(150);
+
+  // לולאה – מוחק שוב עד שהשדה באמת ריק
+  cy.get("#SearchInput").then(function retry($el) {
+    if ($el.val() !== "") {
+      // מחיקה בכוח
+      cy.wrap($el).type("{selectall}{backspace}", { force: true });
+      cy.wait(120);
+
+      // מפעילים לולאה מחדש
+      cy.get("#SearchInput").then(retry);
     }
+  });
 
-    static getSearchInput() {
-        return cy.get("#SearchInput");
-    }
+  // אימות סופי: צריך להיות ריק
+  cy.get("#SearchInput").should("have.value", "");
 
-    static getOverlay() {
-        return cy.get(".advanced-search_overlay_Out_Of_Popup__qjx3J");
-    }
+  return this;
+}
+  type(text) {
+    cy.get("#SearchInput").type(text, { force: true });
+    return this;
+  }
 
-    static getSearchPopup() {
-        return cy.get(".advanced-search_wrap_search_popup__ucNgK");
-    }
-
-    static openSearchPopup() {
-        this.getSearchButton().click({ force: true });
-        this.getSearchInput().should("be.visible");
-    }
-
-static clearSearch() {
-    this.getSearchInput().then($el => {
-        const len = ($el.val() || "").length;
-        const back = "{backspace}".repeat(len + 5);
-
-        cy.wrap($el).type("{ctrl}a", { force: true });
-        cy.wrap($el).type(back, { force: true });
-    });
-
-    this.getSearchInput().should("have.value", "");
+  submitSearch() {
+    this.getSearchSubmit().click({ force: true });
+    return this;
+  }
 }
 
-    static type(value) {
-        this.getSearchInput().type(value, { force: true });
-    }
-
-    static submitSearch() {
-        this.getSearchInput().type("{enter}", { force: true });
-    }
-}
-
-export default HeaderSearch;
+export default new HeaderSearchPage();
